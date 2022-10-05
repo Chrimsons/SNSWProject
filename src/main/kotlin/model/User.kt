@@ -7,16 +7,14 @@ import org.litote.kmongo.newId
 
 @Serializable
 data class User(
-    val firstname:String,
-    val lastname:String,
-    val mobile:String,
+    val firstname:String = "",
+    val lastname:String = "",
+    val mobile:String = "",
     val email:String,
     val password:String,
     val roles : List<String> = listOf(),
-    val gender:String,
-    val dob : Long ,
-
-
+    val gender:String = "",
+    val dob : Long = 0,
     @Serializable(with = ObjectIdAsStringSerializer::class)
     val _id: Id<User> = newId(),
 
@@ -27,7 +25,5 @@ data class LoginDTO(
 
     val email:String,
     val password:String,
-
-
 
     )
