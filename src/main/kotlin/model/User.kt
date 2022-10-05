@@ -15,6 +15,7 @@ data class User(
     val roles : List<String> = listOf(),
     val gender:String,
     val dob : Long ,
+
     @Serializable(with = ObjectIdAsStringSerializer::class)
     val _id: Id<User> = newId(),
 
