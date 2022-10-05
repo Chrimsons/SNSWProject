@@ -8,6 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import model.LoginDTO
 import model.User
 import org.litote.kmongo.*
 import org.mindrot.jbcrypt.*
@@ -38,18 +39,22 @@ fun Route.accountRoute (db:MongoDatabase){
             val data = call.receive<User>()
             val hashed = BCrypt.hashpw(data.password,BCrypt.gensalt())
             val user = User(
+                firstname = data.firstname,
+                lastname = data.lastname,
+                mobile =data.mobile,
                 email = data.email,
                 password = hashed,
-                roles = listOf("customer"),
+                gender= data.gender,
                 dob = data.dob,
-                address = data.address)
+                roles = listOf("customer"),
+                 )
             usersCollection.insertOne(user)
             val token = getJWTToken(user)
             call.respond(HttpStatusCode.Created,token)
         }
 
         post("/login"){
-            val data = call.receive<User>()
+            val data = call.receive<LoginDTO>()
             val filter = "{email:/^${data.email}$/i}"
             val user = usersCollection.findOne(filter) ?: return@post call.respond(HttpStatusCode.BadRequest)
             val valid = BCrypt.checkpw(data.password,user.password)
