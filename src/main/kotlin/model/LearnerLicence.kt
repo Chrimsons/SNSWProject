@@ -14,7 +14,9 @@ data class LearnerLicence(
     val issued:Long = System.currentTimeMillis(),
     val issuedBy: String = "",
     val userId : String,
+    val p:Boolean=false,
     val logEntries: MutableList<LogEntry> = mutableListOf()
+
 ){
     fun dto() : LearnerLicenceDTO= LearnerLicenceDTO(this)
 }
@@ -91,5 +93,8 @@ class TimeUnitDTO {
         seconds = d.seconds  % 60;
     }
 }
+
+@Serializable
+data class P(val p:Boolean)
 
 

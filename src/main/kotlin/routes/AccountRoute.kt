@@ -63,7 +63,7 @@ fun Route.accountRoute(db: MongoDatabase) {
         }
 
         post("/login") {
-            val data = call.receive<User>()
+            val data = call.receive<LoginDTO>()
             val filter = "{email:/^${data.email}$/i}"
             val user = usersCollection.findOne(filter) ?: return@post call.respond(HttpStatusCode.BadRequest)
             val valid = BCrypt.checkpw(data.password, user.password)
