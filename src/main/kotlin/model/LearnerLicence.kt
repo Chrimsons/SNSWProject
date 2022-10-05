@@ -95,6 +95,9 @@ class TimeUnitDTO {
 }
 
 @Serializable
-data class P(val p:Boolean)
+data class ProvisionalRequest(
+    @Serializable(with = ObjectIdAsStringSerializer::class)
+    val _id:Id<LearnerLicence>
+    )
 
 
