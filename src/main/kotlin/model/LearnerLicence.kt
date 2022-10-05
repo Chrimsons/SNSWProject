@@ -25,7 +25,8 @@ data class LearnerLicence(
 data class LogEntry(
     val start: Long,
     val end: Long,
-    val instructor:Boolean
+    val instructor:Boolean,
+    val nightTIme: Boolean
 ){
     @get:JsonIgnore
     val duration : Duration
