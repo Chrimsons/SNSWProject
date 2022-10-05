@@ -14,51 +14,60 @@ import org.litote.kmongo.*
 import org.mindrot.jbcrypt.*
 import java.util.*
 
-fun getJWTToken(user:User): String {
+fun getJWTToken(user: User): String {
 
     val expiry = Date(System.currentTimeMillis() + 86400000)
 
     return JWT.create()
         .withAudience("http://localhost:8080")
         .withIssuer("http://localhost:8080")
-        .withClaim("email",user?.email)
-        .withClaim("id",user._id.toString())
-        .withClaim("roles",user?.roles)
-        .withClaim("dob",user?.dob)
+        .withClaim("email", user?.email)
+        .withClaim("id", user._id.toString())
+        .withClaim("roles", user?.roles)
+        .withClaim("dob", user?.dob)
+        .withClaim("firstname", user?.firstname)
+        .withClaim("lastname", user?.lastname)
+        .withClaim("mobile", user?.mobile)
+        .withClaim("gender", user?.gender)
         .withExpiresAt(expiry)
         .sign(Algorithm.HMAC256("secret"))
 }
 
-fun Route.accountRoute (db:MongoDatabase){
+fun Route.accountRoute(db: MongoDatabase) {
 
     val usersCollection = db.getCollection<User>("users")
 
-    route("/api/account"){
+    route("/api/account") {
 
-        post("/register"){
+        post("/register") {
             val data = call.receive<User>()
-            val hashed = BCrypt.hashpw(data.password,BCrypt.gensalt())
-            val user = User(
-                firstname = data.firstname,
-                lastname = data.lastname,
-                mobile =data.mobile,
-                email = data.email,
-                password = hashed,
-                gender= data.gender,
-                dob = data.dob,
-                roles = listOf("customer"),
-                 )
-            usersCollection.insertOne(user)
-            val token = getJWTToken(user)
-            call.respond(HttpStatusCode.Created,token)
+            val filter = "{email:'${data.email}'}"
+            val existing = usersCollection.findOne(filter)
+            if (existing == null) {
+                val hashed = BCrypt.hashpw(data.password, BCrypt.gensalt())
+                val user = User(
+                    firstname = data.firstname,
+                    lastname = data.lastname,
+                    mobile = data.mobile,
+                    email = data.email,
+                    password = hashed,
+                    gender = data.gender,
+                    dob = data.dob,
+                    roles = listOf("customer"),
+                )
+                usersCollection.insertOne(user)
+                val token = getJWTToken(user)
+                call.respond(HttpStatusCode.Created, token)
+            }
+            call.respond(HttpStatusCode.BadRequest)
         }
 
-        post("/login"){
+        post("/login") {
             val data = call.receive<User>()
             val filter = "{email:/^${data.email}$/i}"
             val user = usersCollection.findOne(filter) ?: return@post call.respond(HttpStatusCode.BadRequest)
-            val valid = BCrypt.checkpw(data.password,user.password)
-            if(!valid){
+            val valid = BCrypt.checkpw(data.password, user.password)
+            if (!valid) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             }
             val token = getJWTToken(user)
