@@ -12,7 +12,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import model.LearnerLicence
 import model.LogEntry
-import model.P
+
+import model.ProvisionalRequest
 import org.litote.kmongo.*
 
 fun Route.licenceRoute (db: MongoDatabase) {
@@ -75,10 +76,11 @@ fun Route.licenceRoute (db: MongoDatabase) {
             call.respond(HttpStatusCode.Created,licence);
         }
         put("/p"){
-            val data = call.receive<LearnerLicence>()
-            val result = licenceCollection.updateOne(data)
+            val data = call.receive<ProvisionalRequest>()
+           val filter =  "{_id:ObjectId('${data._id}')}"
+            val result = licenceCollection.updateOne(filter, "{\$set:{p: true}}")
             if (result.modifiedCount.toInt() == 1) {
-                call.respond(HttpStatusCode.OK, data.p)
+                call.respond(HttpStatusCode.OK)
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }
