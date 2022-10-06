@@ -26,7 +26,7 @@ data class LogEntry(
     val start: Long,
     val end: Long,
     val instructor:Boolean,
-    val nightTIme: Boolean
+    val nightTime: Boolean
 ){
     @get:JsonIgnore
     val duration : Duration
@@ -34,14 +34,23 @@ data class LogEntry(
             return Duration.ofMillis(end - start)
         }
     @get:JsonIgnore
+    val nightDuration : Duration
+        get(){
+            return Duration.ofMillis(end - start)
+        }
+    @get:JsonIgnore
     val bonus : Duration
     get(){
-        return Duration.ofMillis(if(instructor) duration.toMillis() * 2 else 0)
+        if (nightTime == false){
+            return Duration.ofMillis(if(instructor) duration.toMillis() * 2 else 0)
+        } else {
+            return Duration.ofMillis(if (instructor) nightDuration.toMillis() * 2 else 0)
+        }
     }
     @get:JsonIgnore
     val total : Duration
     get() {
-        return Duration.ofMillis(duration.toMillis() + bonus.toMillis())
+        return Duration.ofMillis(duration.toMillis() + nightDuration.toMillis() + bonus.toMillis())
     }
 }
 
@@ -64,10 +73,11 @@ class LearnerLicenceDTO{
         var licenceTotal : Long = 0
         logEntries = licence.logEntries.map {
             val duration = TimeUnitDTO(it.duration)
+            val nightDuration = TimeUnitDTO(it.nightDuration)
             val bonus = TimeUnitDTO(it.bonus)
             val total = TimeUnitDTO(it.total)
             licenceTotal += it.total.toSeconds()
-            LogEntryDTO(it.start,it.end,it.instructor,duration,bonus,total)
+            LogEntryDTO(it.start,it.end,it.instructor,it.nightTime,duration,nightDuration,bonus,total)
         }.toMutableList()
         val ltd = Duration.ofSeconds(licenceTotal)
         total = TimeUnitDTO(ltd)
@@ -78,7 +88,9 @@ data class LogEntryDTO(
     val start: Long,
     val end: Long,
     val instructor:Boolean,
+    val nightTime: Boolean,
     val duration : TimeUnitDTO,
+    val nightDuration : TimeUnitDTO,
     val bonus : TimeUnitDTO,
     val total : TimeUnitDTO
 )
