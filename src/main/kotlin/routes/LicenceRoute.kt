@@ -12,6 +12,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import model.LearnerLicence
 import model.LogEntry
+import model.LogEntryDTO2
 
 import model.ProvisionalRequest
 import org.litote.kmongo.*
@@ -37,6 +38,19 @@ fun Route.licenceRoute (db: MongoDatabase) {
             }
             return@post call.respond(HttpStatusCode.NotFound)
         }
+        /*post("{id}/total"){
+            val entry = call.receive<LogEntryDTO2>()
+            val id = call.parameters["id"].toString()
+            val principal = call.principal<JWTPrincipal>()
+            val userId = principal?.payload?.getClaim("id").toString().replace("\"","")
+            val licence = licenceCollection.findOne("{userId:'$userId',_id:ObjectId('$id')}")
+            if(licence != null){
+                licence.logEntries.add(entry)
+                licenceCollection.updateOne(licence)
+                return@post call.respond(HttpStatusCode.Created,licence.dto())
+            }
+            return@post call.respond(HttpStatusCode.NotFound)
+        }*/
 
         get{
             val principal = call.principal<JWTPrincipal>()

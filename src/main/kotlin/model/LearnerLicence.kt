@@ -26,7 +26,8 @@ data class LogEntry(
     val start: Long,
     val end: Long,
     val instructor:Boolean,
-    val nightTime: Boolean
+    val nightTime: Boolean,
+
 ){
     @get:JsonIgnore
     val duration : Duration
@@ -115,6 +116,10 @@ data class LogEntryDTO(
     val nightDuration : TimeUnitDTO,
     val bonus : TimeUnitDTO,
     val totalNightHours: TimeUnitDTO,
+    val total : TimeUnitDTO
+)
+data class LogEntryDTO2(
+
     val total : TimeUnitDTO
 )
 
