@@ -100,7 +100,7 @@ fun Route.licenceRoute(db: MongoDatabase) {
             val filter = "{userId:'$userId'}"
             val data = licenceCollection.findOne(filter)
             if (data != null) {
-                return@get call.respond(data)
+                return@get call.respond(data.dto())
             }
             return@get call.respond(HttpStatusCode.NotFound)
         }
