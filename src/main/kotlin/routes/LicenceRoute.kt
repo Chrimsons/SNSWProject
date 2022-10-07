@@ -17,24 +17,24 @@ import model.LogEntry
 import model.ProvisionalRequest
 import org.litote.kmongo.*
 
-fun Route.licenceRoute (db: MongoDatabase) {
+fun Route.licenceRoute(db: MongoDatabase) {
 
     val licenceCollection = db.getCollection<LearnerLicence>("licences")
 
 
-    route("/api/customer/licences"){
+    route("/api/customer/licences") {
         install(RoleBasedAuthorization) { roles = listOf("customer") }
 
-        post("{id}/logbook-entry"){
+        post("{id}/logbook-entry") {
             val entry = call.receive<LogEntry>()
             val id = call.parameters["id"].toString()
             val principal = call.principal<JWTPrincipal>()
-            val userId = principal?.payload?.getClaim("id").toString().replace("\"","")
+            val userId = principal?.payload?.getClaim("id").toString().replace("\"", "")
             val licence = licenceCollection.findOne("{userId:'$userId',_id:ObjectId('$id')}")
-            if(licence != null){
+            if (licence != null) {
                 licence.logEntries.add(entry)
                 licenceCollection.updateOne(licence)
-                return@post call.respond(HttpStatusCode.Created,licence.dto())
+                return@post call.respond(HttpStatusCode.Created, licence.dto())
             }
             return@post call.respond(HttpStatusCode.NotFound)
         }
@@ -52,63 +52,54 @@ fun Route.licenceRoute (db: MongoDatabase) {
             return@post call.respond(HttpStatusCode.NotFound)
         }*/
 
-        get{
+        get {
             val principal = call.principal<JWTPrincipal>()
-            val userId = principal?.payload?.getClaim("id").toString().replace("\"","")
+            val userId = principal?.payload?.getClaim("id").toString().replace("\"", "")
             val licences = licenceCollection.find("{userId:'$userId'}").toList().map { it.dto() }
-            if(licences != null) {
-                return@get call.respond(HttpStatusCode.OK,licences)
+            if (licences != null) {
+                return@get call.respond(HttpStatusCode.OK, licences)
             }
             return@get call.respond(HttpStatusCode.NotFound)
-
-
         }
 
-        get("{id}"){
+        get("{id}") {
             val id = call.parameters["id"].toString()
             val principal = call.principal<JWTPrincipal>()
-            val userId = principal?.payload?.getClaim("id").toString().replace("\"","")
+            val userId = principal?.payload?.getClaim("id").toString().replace("\"", "")
             val licence = licenceCollection.findOne("{userId:'$userId',_id:ObjectId('$id')}")
-            if(licence != null){
+            if (licence != null) {
                 val dto = licence.dto()
                 return@get call.respond(dto)
             }
             return@get call.respond(HttpStatusCode.NotFound)
         }
-
-
     }
 
-    route("/api/admin/licences"){
+    route("/api/admin/licences") {
 
         install(RoleBasedAuthorization) { roles = listOf("admin") }
-        post{
+        post {
             val data = call.receive<LearnerLicence>()
             val email = call.principal<JWTPrincipal>()?.getEmail()
-            val licence = data.copy(issuedBy =  email!!)
+            val licence = data.copy(issuedBy = email!!)
             licenceCollection.insertOne(licence)
-            call.respond(HttpStatusCode.Created,licence);
+            call.respond(HttpStatusCode.Created, licence);
         }
-        put("/p"){
+        put("/p") {
             val data = call.receive<ProvisionalRequest>()
-           val filter =  "{_id:ObjectId('${data._id}')}"
+            val filter = "{_id:ObjectId('${data._id}')}"
             val result = licenceCollection.updateOne(filter, "{\$set:{p: true}}")
             if (result.modifiedCount.toInt() == 1) {
                 call.respond(HttpStatusCode.OK)
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }
-
-
-
         }
-
-
-        get("/{userId}"){
+        get("/{userId}") {
             val userId = call.parameters["userId"].toString()
             val filter = "{userId:'$userId'}"
             val data = licenceCollection.findOne(filter)
-            if(data != null){
+            if (data != null) {
                 return@get call.respond(data)
             }
             return@get call.respond(HttpStatusCode.NotFound)
