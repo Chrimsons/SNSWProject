@@ -15,6 +15,7 @@ data class LearnerLicence(
     val issuedBy: String = "",
     val userId : String,
     val p:Boolean=false,
+    val hours:Int=0,
     val logEntries: MutableList<LogEntry> = mutableListOf()
 
 ){
@@ -138,10 +139,7 @@ data class LogEntryDTO(
     val totalNightHours: TimeUnitDTO,
     val total : TimeUnitDTO
 )
-data class LogEntryDTO2(
 
-    val total : TimeUnitDTO
-)
 
 @Serializable
 class TimeUnitDTO {

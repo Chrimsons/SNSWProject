@@ -30,9 +30,13 @@ fun Route.customerRoute (db:MongoDatabase){
         get("/search"){
 
             var filter = "roles:[\"customer\"]"
+            val mobile = call.request.queryParameters["mobile"]
             val email = call.request.queryParameters["email"]
             if (email != null) {
                 filter = "email:/${call.parameters["email"]}/i," + filter
+            }
+            else if(mobile != null){
+                filter = "mobile:/${call.parameters["mobile"]}/i," + filter
             }
             val id = call.request.queryParameters["id"]
             if (id != null) {
