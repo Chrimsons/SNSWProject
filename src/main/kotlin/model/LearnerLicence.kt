@@ -64,7 +64,7 @@ data class LogEntry(
     @get:JsonIgnore
     val totalBonus : Duration
         get() {
-            if (bonus.toHours() > 7) {
+            if (bonus.toHours() > 30) {
                 return Duration.ofMillis(bonus.toMillis())
             } else {
                 return Duration.ofMillis(0)
