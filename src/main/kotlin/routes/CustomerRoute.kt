@@ -42,6 +42,5 @@ fun Route.customerRoute (db:MongoDatabase){
             val result = usersCollection.find(filter).toList();
             return@get call.respond(result)
         }
-
     }
 }
