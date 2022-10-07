@@ -31,9 +31,17 @@ fun Route.customerRoute (db:MongoDatabase){
 
             var filter = "roles:[\"customer\"]"
             val email = call.request.queryParameters["email"]
+
             if (email != null) {
                 filter = "email:/${call.parameters["email"]}/i," + filter
             }
+
+            val mobile = call.request.queryParameters["mobile"]
+
+            if (mobile != null) {
+                filter = "mobile:/${call.parameters["mobile"]}/i," + filter
+            }
+
             val id = call.request.queryParameters["id"]
             if (id != null) {
                 filter = "_id:ObjectId('$id')," + filter

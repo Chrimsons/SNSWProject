@@ -12,7 +12,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import model.LearnerLicence
 import model.LogEntry
-import model.LogEntryDTO2
+
 
 import model.ProvisionalRequest
 import org.litote.kmongo.*
